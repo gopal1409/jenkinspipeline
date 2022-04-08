@@ -1,0 +1,36 @@
+pipeline {
+    agent any
+    stages {
+        stage ('retry') {
+            steps {
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE'){
+                retry(3){
+                    sh 'echo hello'
+                }
+                timeout(time: 3, unit: 'SECONDS') {
+                    sh 'sleep 5'
+                }
+            }
+            }
+        }
+        stage('Build Code'){
+            steps {
+               sh 'echo "my first pipeline with multi steps"'
+               sh '''
+                 echo "by the way i can do more stuff here"
+                 ls -lah
+                 '''
+            }
+        }
+        stage('Testing'){
+            steps{
+                echo 'testing my code'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying my code'
+            }
+        }
+    }
+}
